@@ -53,7 +53,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-
+	AddVersionCommand(rootCmd)
 	// Here define all commands
 	rootCmd.AddCommand(cli.NewChectlCommand())
 	// Here you will define your flags and configuration settings.

@@ -1,0 +1,66 @@
+name: release
+on: push
+defaults:
+  run:
+    shell: bash
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.release.outputs.upload_url }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Generate tag utilities
+        id: TAG_UTIL
+        run: |
+          CURRENT_DAY=$(date +'%Y%m%d')
+          SHORT_SHA1=$(git rev-parse --short HEAD)
+          echo "::set-output name=gh_release_name::$CURRENT_DAY-next.$SHORT_SHA1"
+          echo "::set-output name=sha_short::$SHORT_SHA1"
+      - uses: actions/create-release@v1
+        id: release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          draft: false
+          tag_name: ${{ steps.TAG_UTIL.outputs.sha_short }}
+          release_name: ${{ steps.TAG_UTIL.outputs.gh_release_name }}
+  assets:
+    needs: create
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+        arch:
+          - amd64
+        include:
+          - os: ubuntu-latest
+            arch: ppc64le
+          - os: ubuntu-latest
+            arch: s390x
+    runs-on: ${{ matrix.os }}
+    env:
+      GOARCH: ${{ matrix.arch }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        env:
+          TOKEN: ${{ secrets.PRIV_ACCESS_TOKEN }}
+        with:
+          go-version: '~1.15'
+      - run: |
+          echo "asset_path=bin/che-inspector" >> $GITHUB_ENV
+          echo "asset_name=$(go env GOOS)-$(go env GOARCH)-che-inspector$(go env GOEXE)" >> $GITHUB_ENV
+      - run: |
+          export SOURCE_CLI_VERSION="$(date +'%Y%m%d')-next.$(git rev-parse --short HEAD)"
+          go mod vendor && make build
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ needs.create.outputs.upload_url }}
+          asset_path: ${{ env.asset_path }}
+          asset_name: ${{ env.asset_name }}
+          asset_content_type: application/octet-stream

@@ -31,12 +31,14 @@ func DeployTestHarness(k8sClient *client.K8sClient, testSpec *instance.CheTestsS
 	if err != nil {
 		return err
 	}
+
 	terminated, err := waitForContainerToBeTerminated(k8sClient, testSpec, pod.Name)
 	if terminated {
-		err = util.CopyArtifactsFromPod(testSpec.Artifacts.FromContainerPath, testSpec.Artifacts.To, pod.Name, testSpec.Namespace, "download")
+		err = util.CopyArtifactsFromPod(testSpec.Artifacts.FromContainerPath, testSpec.Artifacts.To, pod.Name, testSpec.Namespace, artifactsDownloadContainerName)
 	} else {
-		return fmt.Errorf("Failed to get test-harness pod status")
+		return fmt.Errorf("Failed to get test-harness pod status   ")
 	}
+
 	return err
 }
 
@@ -49,30 +51,30 @@ func GetTestHarnessPodSpec(testSpec *instance.CheTestsSpec) *corev1.Pod {
 		Spec: corev1.PodSpec{
 			Volumes: []corev1.Volume{
 				{
-					Name: "test-run-results",
+					Name: artifactsVolumeName,
 				},
 			},
 			RestartPolicy: "Never",
 			Containers: []corev1.Container{
 				{
 					Name:            testSpec.Name,
-					Image:           "quay.io/crw/osd-e2e:nightly",
+					Image:           testSpec.Image,
 					Args:            testSpec.Args,
 					ImagePullPolicy: "Always",
 					VolumeMounts: []corev1.VolumeMount{
 						{
-							Name:      "test-run-results",
-							MountPath: "/test-run-results",
+							Name:      artifactsVolumeName,
+							MountPath: testHarnessArtifactsVolumeMonthPath,
 						},
 					},
 				},
 				{
-					Name:  "download",
-					Image: "eeacms/rsync",
+					Name:  artifactsDownloadContainerName,
+					Image: downloadArtifactsContainerImage,
 					VolumeMounts: []corev1.VolumeMount{
 						{
-							Name:      "test-run-results",
-							MountPath: "/test-run-results",
+							Name:      artifactsVolumeName,
+							MountPath: testHarnessArtifactsVolumeMonthPath,
 						},
 					},
 					Command: []string{"sh"},
@@ -93,7 +95,7 @@ func getSpecRole(testSpec *instance.CheTestsSpec) *v1.Role {
 			APIVersion: v1.SchemeGroupVersion.String(),
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "test-harness-role",
+			Name:      testHarnessRoleName,
 			Namespace: testSpec.Namespace,
 		},
 		Rules: []v1.PolicyRule{
@@ -129,7 +131,7 @@ func getSpecRole(testSpec *instance.CheTestsSpec) *v1.Role {
 func getRoleBindingSpec(testSpec *instance.CheTestsSpec) *v1.RoleBinding {
 	return &v1.RoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "test-harness-role-binding",
+			Name:      testHarnessRoleBindingName,
 			Namespace: testSpec.Namespace,
 		},
 		Subjects: []v1.Subject{
@@ -142,7 +144,7 @@ func getRoleBindingSpec(testSpec *instance.CheTestsSpec) *v1.RoleBinding {
 		RoleRef: v1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "Role",
-			Name:     "test-harness-role",
+			Name:     testHarnessRoleName,
 		},
 	}
 }

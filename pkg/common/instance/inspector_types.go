@@ -6,6 +6,7 @@ import corev1 "k8s.io/api/core/v1"
 type CheInspectorSpec struct {
 	Deployment CheDeploymentSpec `yaml:"deployment"`
 	Tests      []CheTestsSpec    `yaml:"tests"`
+	Report    []CheReporterSpec `yaml:"reporter"`
 }
 
 // The CheDeploymentSpec defines the type of deployment to deploy a Che instance. Supported deployments: chectl/crwctl
@@ -21,12 +22,13 @@ type CliSpec struct {
 // The CheTestsSpec define the information about the suites to execute against Che instance.
 // Supported suites are: happy-path, test-harness
 type CheTestsSpec struct {
-	Name      string           `yaml:"name"`
+	Name      string           `yaml:"name" ,validate:"required"`
 	Namespace string           `yaml:"namespace,omitempty"`
 	Image     string           `yaml:"image"`
 	Args      []string         `yaml:"args,omitempty"`
 	Env       []corev1.EnvVar  `yaml:"env"`
 	Artifacts CheArtifactsSpec `yaml:"artifacts,omitempty"`
+
 }
 
 // The CheArtifactsSpec define the information where to store tests artifacts.
@@ -38,6 +40,7 @@ type CheArtifactsSpec struct {
 // The CheReporterSpec define a basic reporter to send suites results. Options supported: slack
 type CheReporterSpec struct {
 	CI       string `yaml:"ci"`
+	Channel string  `yaml:"channel,omitempty"`
 	Provider string `yaml:"provider"`
 	Token    string `yaml:"token"`
 	URL      string `yaml:"url"`
@@ -50,5 +53,4 @@ type CheInspector struct {
 	Ide             string            `yaml:"ide"`
 	Spec            CheInspectorSpec  `yaml:"spec"`
 	CleanAfterTests bool              `yaml:"cleanAfterTests,omitempty"`
-	Report          []CheReporterSpec `yaml:"suites,omitempty"`
 }

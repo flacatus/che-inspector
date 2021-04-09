@@ -2,9 +2,6 @@ name: CheInspector
 version: "0.0.0"
 ide: "Eclipse Che"
 spec:
-  deployment:
-    cli:
-      flags: "--installer=olm --platform=openshift"
   tests:
     # Execute test Harness tests
     - name: "test-harness"

@@ -3,26 +3,16 @@ package util
 import (
 	"archive/tar"
 	"fmt"
+	"github.com/flacatus/che-inspector/pkg/common/client"
 	"io"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/tools/remotecommand"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
-	"time"
-
-	"github.com/flacatus/che-inspector/pkg/common/client"
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/client-go/kubernetes/scheme"
-	"k8s.io/client-go/tools/remotecommand"
-)
-
-const (
-	// Poll how often to poll for conditions
-	Poll = 3 * time.Second
-
-	// DefaultTimeout time to wait for operations to complete
-	DefaultTimeout = 15 * time.Minute
 )
 
 // CopyArtifactsFromPod copy files from a given pod to local directory where che-inspector it is executed

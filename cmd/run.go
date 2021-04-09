@@ -17,9 +17,10 @@ limitations under the License.
 package cmd
 
 import (
-	"log"
-
+	"github.com/flacatus/che-inspector/pkg/common/clog"
+	"github.com/flacatus/che-inspector/pkg/common/validator"
 	"github.com/flacatus/che-inspector/pkg/suites"
+	"log"
 
 	"github.com/flacatus/che-inspector/pkg/common/instance"
 	"github.com/spf13/cobra"
@@ -43,6 +44,13 @@ to quickly create a Cobra application.`,
 		if err != nil {
 			log.Println(err)
 		}
+		clog.LOGGER.Infof("Successfully generated che-inspector context. Starting to validate tests configurations.")
+		err = validator.CheInspectorValidator(context.CheInspector)
+		if err != nil {
+			clog.LOGGER.Error(err)
+			return
+		}
+		clog.LOGGER.Infof("Successfully validated configuration file. Starting test suites from configuration file.")
 		err = suites.StartCheSuiteTests(context)
 		if err != nil {
 			log.Println(err)

@@ -8,20 +8,20 @@ import (
 
 func InitRestClient() (*rest.Config, error, *corev1client.CoreV1Client) {
 	// Instantiate loader for kubeconfig file.
-	kubeconfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		clientcmd.NewDefaultClientConfigLoadingRules(),
 		&clientcmd.ConfigOverrides{},
 	)
-	// Get a rest.Config from the kubeconfig file.  This will be passed into all
+	// Get a rest.Config from the kubeConfig file.  This will be passed into all
 	// the client objects we create.
-	restconfig, err := kubeconfig.ClientConfig()
+	restConfig, err := kubeConfig.ClientConfig()
 	if err != nil {
 		panic(err)
 	}
 	// Create a Kubernetes core/v1 client.
-	coreclient, err := corev1client.NewForConfig(restconfig)
+	coreClient, err := corev1client.NewForConfig(restConfig)
 	if err != nil {
 		panic(err)
 	}
-	return restconfig, err, coreclient
+	return restConfig, err, coreClient
 }
