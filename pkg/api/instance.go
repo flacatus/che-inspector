@@ -1,11 +1,11 @@
-package instance
+package api
 
 import (
 	"fmt"
 	"io/ioutil"
 
+	dockerClient "github.com/docker/docker/client"
 	"github.com/flacatus/che-inspector/pkg/common/client"
-
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
 )
@@ -13,6 +13,7 @@ import (
 type CliContext struct {
 	CheInspector *CheInspector
 	Client       *client.K8sClient
+	DockerClient *dockerClient.Client
 }
 
 func GetCliContext() (cliContext *CliContext, e error) {
@@ -26,9 +27,14 @@ func GetCliContext() (cliContext *CliContext, e error) {
 		return nil, err
 	}
 
+	dockerCl, err := client.NewDockerClient()
+	if err != nil {
+		return nil, err
+	}
 	return &CliContext{
 		CheInspector: cliInstance,
 		Client:       k8sClient,
+		DockerClient: dockerCl,
 	}, nil
 }
 

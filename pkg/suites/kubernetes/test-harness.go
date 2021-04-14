@@ -2,15 +2,15 @@ package kubernetes
 
 import (
 	"fmt"
+	"github.com/flacatus/che-inspector/pkg/api"
 	"github.com/flacatus/che-inspector/pkg/common/client"
-	"github.com/flacatus/che-inspector/pkg/common/instance"
 	"github.com/flacatus/che-inspector/pkg/common/util"
 	"github.com/sirupsen/logrus"
 	v1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func DeployTestHarness(k8sClient *client.K8sClient, testSpec *instance.CheTestsSpec) (err error) {
+func DeployTestHarness(k8sClient *client.K8sClient, testSpec *api.CheTestsSpec) (err error) {
 	role, err := k8sClient.Kube().RbacV1().Roles(testSpec.Namespace).Create(getSpecRole(testSpec))
 	if err != nil {
 		logrus.Error(err)
@@ -38,7 +38,7 @@ func DeployTestHarness(k8sClient *client.K8sClient, testSpec *instance.CheTestsS
 	return err
 }
 
-func getSpecRole(testSpec *instance.CheTestsSpec) *v1.Role {
+func getSpecRole(testSpec *api.CheTestsSpec) *v1.Role {
 	return &v1.Role{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Role",
@@ -78,7 +78,7 @@ func getSpecRole(testSpec *instance.CheTestsSpec) *v1.Role {
 	}
 }
 
-func getRoleBindingSpec(testSpec *instance.CheTestsSpec) *v1.RoleBinding {
+func getRoleBindingSpec(testSpec *api.CheTestsSpec) *v1.RoleBinding {
 	return &v1.RoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      testHarnessRoleBindingName,

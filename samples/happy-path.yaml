@@ -1,6 +1,5 @@
 name: CheInspector
 version: "0.0.0"
-ide: "Eclipse Che" # CodeReady Workspaces
 spec:
   deployment:
     cli:
@@ -9,7 +8,7 @@ spec:
     # Execute happy-path tests
     - name: "happy-path"
       namespace: "eclipse-che"
-      image: "quay.io/eclipse/che-e2e:7.28.1"
+      image: "quay.io/eclipse/che-e2e:nightly"
       containerContext: "docker"
       env:
       - name: TEST_SUITE

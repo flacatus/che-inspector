@@ -2,14 +2,14 @@ package reporter
 
 import (
 	"fmt"
-	"github.com/flacatus/che-inspector/pkg/common/instance"
+	"github.com/flacatus/che-inspector/pkg/api"
 	"github.com/slack-go/slack"
 )
 
 var slackChannelCache = make(map[string]slack.Channel)
 
 // SendSlackMessage sends the message text to the provided channel (if it can be found).
-func SendSlackMessage(reporter *instance.CheReporterSpec, message string) error {
+func SendSlackMessage(reporter *api.CheReporterSpec, message string) error {
 	token := reporter.Token
 	if len(token) == 0 {
 		return fmt.Errorf("no slack token configured")

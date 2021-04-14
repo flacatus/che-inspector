@@ -2,18 +2,18 @@ package validator
 
 import (
 	"fmt"
-	"github.com/flacatus/che-inspector/pkg/common/instance"
+	"github.com/flacatus/che-inspector/pkg/api"
 	"github.com/go-playground/validator"
 )
 
 // The CheInspectorValidator validate all fields from structure read it from yaml file.
 // Validate all basic fields like name, version etc and if exists tests in yaml file
-func CheInspectorValidator(inspector *instance.CheInspector) (err error){
+func CheInspectorValidator(inspector *api.CheInspector) (err error){
 	validate := validator.New()
 	// register validation for 'CheInspector'
 	// NOTE: only have to register a non-pointer type for 'CheInspector', validator
 	// internally dereferences during it's type checks.
-	validate.RegisterStructValidation(validateCheInspectorStruct, instance.CheInspector{})
+	validate.RegisterStructValidation(validateCheInspectorStruct, api.CheInspector{})
 	// returns InvalidValidationError for bad validation input, nil or ValidationErrors ( []FieldError )
 	err = validate.Struct(inspector)
 	if err != nil {
@@ -38,14 +38,10 @@ func CheInspectorValidator(inspector *instance.CheInspector) (err error){
 
 // Basic validator for cheInspector fields
 func validateCheInspectorStruct(sl validator.StructLevel) {
-	inspector := sl.Current().Interface().(instance.CheInspector)
+	inspector := sl.Current().Interface().(api.CheInspector)
 
 	if inspector.Name == "" {
 		sl.ReportError(inspector.Name, "name", "Name", "Missing", "")
-	}
-
-	if inspector.Ide == "" {
-		sl.ReportError(inspector.Ide, "name", "Name", "Missing", "")
 	}
 
 	if inspector.Version == "" {
@@ -62,7 +58,7 @@ func validateCheInspectorStruct(sl validator.StructLevel) {
 }
 
 // Validate if yaml tests contain a name and a namespace
-func validateTestsStruct(testSuite instance.CheTestsSpec, sl validator.StructLevel)  {
+func validateTestsStruct(testSuite api.CheTestsSpec, sl validator.StructLevel)  {
 	if testSuite.Name == "" {
 		sl.ReportError(testSuite.Name, "name", "Name", "testSuite", "")
 	}

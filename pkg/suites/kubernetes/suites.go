@@ -3,9 +3,9 @@ package kubernetes
 import (
 	"errors"
 	"fmt"
+	"github.com/flacatus/che-inspector/pkg/api"
 	"github.com/flacatus/che-inspector/pkg/common/client"
 	"github.com/flacatus/che-inspector/pkg/common/clog"
-	"github.com/flacatus/che-inspector/pkg/common/instance"
 	"github.com/flacatus/che-inspector/pkg/common/reporter"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -20,7 +20,7 @@ const (
 	testHarnessRoleBindingName          = "test-harness-role-binding"
 )
 
-func StartK8STestSuites(instance *instance.CliContext) (err error) {
+func StartK8STestSuites(instance *api.CliContext) (err error) {
 	// TODO: Refactor this function
 	for _, suite := range instance.CheInspector.Spec.Tests {
 		if suite.Name == "test-harness" {
@@ -32,7 +32,7 @@ func StartK8STestSuites(instance *instance.CliContext) (err error) {
 			clog.LOGGER.Info("Starting happy path test suite")
 
 			if err := DeployHappyPath(instance.Client, &suite); err != nil {
-				_ = reporter.SendSlackMessage(&instance.CheInspector.Spec.Report[0], "Che-Inspector: Failed to run hapy path tests ")
+				_ = reporter.SendSlackMessage(&instance.CheInspector.Spec.Report[0], "Che-Inspector: Failed to run happy path tests ")
 
 				return err
 			}
@@ -44,7 +44,7 @@ func StartK8STestSuites(instance *instance.CliContext) (err error) {
 }
 
 // The GetTestSuitePodSpec returns pod specification with pod to be created with go client
-func GetTestSuitePodSpec(testSpec *instance.CheTestsSpec) *corev1.Pod  {
+func GetTestSuitePodSpec(testSpec *api.CheTestsSpec) *corev1.Pod  {
 	return &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: testSpec.Name,
@@ -91,7 +91,8 @@ func GetTestSuitePodSpec(testSpec *instance.CheTestsSpec) *corev1.Pod  {
 	}
 }
 
-func waitForContainerToBeTerminated(k8sClient *client.K8sClient, testSpec *instance.CheTestsSpec, podName string) (terminated bool, err error) {
+// TODO: Use wait.poll
+func waitForContainerToBeTerminated(k8sClient *client.K8sClient, testSpec *api.CheTestsSpec, podName string) (terminated bool, err error) {
 	for {
 		select {
 		case <-time.After(15 * time.Minute):

@@ -1,12 +1,12 @@
 package suites
 
 import (
-	"github.com/flacatus/che-inspector/pkg/common/instance"
+	"github.com/flacatus/che-inspector/pkg/api"
 	"github.com/flacatus/che-inspector/pkg/suites/docker"
 	"github.com/flacatus/che-inspector/pkg/suites/kubernetes"
 )
 
-func RunTestSuite(instance *instance.CliContext) (err error) {
+func RunTestSuite(instance *api.CliContext) (err error) {
 	for _, suite := range instance.CheInspector.Spec.Tests {
 		if suite.ContainerContext == "docker" {
 			return docker.RunDockerSuite(instance)

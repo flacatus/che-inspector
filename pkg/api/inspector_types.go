@@ -1,4 +1,4 @@
-package instance
+package api
 
 import corev1 "k8s.io/api/core/v1"
 
@@ -48,9 +48,9 @@ type CheReporterSpec struct {
 
 // The CheInspector allows defining and managing Che suites
 type CheInspector struct {
-	Name            string            `yaml:"name"`
-	Version         string            `yaml:"version"`
-	Ide             string            `yaml:"ide"`
-	Spec            CheInspectorSpec  `yaml:"spec"`
-	CleanAfterTests bool              `yaml:"cleanAfterTests,omitempty"`
+	Name            string           `yaml:"name"`
+	Version         string           `yaml:"version"`
+	Ide             string           `yaml:"ide"`
+	Spec            CheInspectorSpec `yaml:"spec"`
+	CleanAfterTests bool             `yaml:"cleanAfterTests,omitempty"`
 }

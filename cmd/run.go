@@ -17,8 +17,8 @@ limitations under the License.
 package cmd
 
 import (
+	"github.com/flacatus/che-inspector/pkg/api"
 	"github.com/flacatus/che-inspector/pkg/common/clog"
-	"github.com/flacatus/che-inspector/pkg/common/instance"
 	"github.com/flacatus/che-inspector/pkg/common/validator"
 	"github.com/flacatus/che-inspector/pkg/suites"
 	"log"
@@ -40,7 +40,7 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		context, err := instance.GetCliContext()
+		context, err := api.GetCliContext()
 		if err != nil {
 			log.Println(err)
 		}
