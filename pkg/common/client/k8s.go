@@ -21,8 +21,9 @@ func NewK8sClient() (*K8sClient, error) {
 		return nil, err
 	}
 
-	h := &K8sClient{kubeClient: client}
-	return h, nil
+	return &K8sClient{
+		kubeClient: client,
+	}, nil
 }
 
 // Kube returns the clientset for Kubernetes upstream.

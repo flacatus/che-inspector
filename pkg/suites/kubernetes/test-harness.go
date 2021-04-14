@@ -1,15 +1,11 @@
-package suites
+package kubernetes
 
 import (
-	"errors"
 	"fmt"
-	"time"
-
 	"github.com/flacatus/che-inspector/pkg/common/client"
 	"github.com/flacatus/che-inspector/pkg/common/instance"
 	"github.com/flacatus/che-inspector/pkg/common/util"
 	"github.com/sirupsen/logrus"
-	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -27,7 +23,7 @@ func DeployTestHarness(k8sClient *client.K8sClient, testSpec *instance.CheTestsS
 	}
 	logrus.Infof("Successufully create roleBinding for test-harness %s.", rb.Name)
 
-	pod, err := k8sClient.Kube().CoreV1().Pods(testSpec.Namespace).Create(GetTestHarnessPodSpec(testSpec))
+	pod, err := k8sClient.Kube().CoreV1().Pods(testSpec.Namespace).Create(GetTestSuitePodSpec(testSpec))
 	if err != nil {
 		return err
 	}
@@ -40,52 +36,6 @@ func DeployTestHarness(k8sClient *client.K8sClient, testSpec *instance.CheTestsS
 	}
 
 	return err
-}
-
-func GetTestHarnessPodSpec(testSpec *instance.CheTestsSpec) *corev1.Pod {
-	return &corev1.Pod{
-		ObjectMeta: metav1.ObjectMeta{
-			GenerateName: testSpec.Name,
-			Namespace:    testSpec.Namespace,
-		},
-		Spec: corev1.PodSpec{
-			Volumes: []corev1.Volume{
-				{
-					Name: artifactsVolumeName,
-				},
-			},
-			RestartPolicy: "Never",
-			Containers: []corev1.Container{
-				{
-					Name:            testSpec.Name,
-					Image:           testSpec.Image,
-					Args:            testSpec.Args,
-					ImagePullPolicy: "Always",
-					VolumeMounts: []corev1.VolumeMount{
-						{
-							Name:      artifactsVolumeName,
-							MountPath: testHarnessArtifactsVolumeMonthPath,
-						},
-					},
-				},
-				{
-					Name:  artifactsDownloadContainerName,
-					Image: downloadArtifactsContainerImage,
-					VolumeMounts: []corev1.VolumeMount{
-						{
-							Name:      artifactsVolumeName,
-							MountPath: testHarnessArtifactsVolumeMonthPath,
-						},
-					},
-					Command: []string{"sh"},
-					Args: []string{
-						"-c",
-						"while true; if [[ -f /tmp/done ]]; then exit 0; fi; do sleep 1; done",
-					},
-				},
-			},
-		},
-	}
 }
 
 func getSpecRole(testSpec *instance.CheTestsSpec) *v1.Role {
@@ -146,24 +96,5 @@ func getRoleBindingSpec(testSpec *instance.CheTestsSpec) *v1.RoleBinding {
 			Kind:     "Role",
 			Name:     testHarnessRoleName,
 		},
-	}
-}
-
-func waitForContainerToBeTerminated(k8sClient *client.K8sClient, testSpec *instance.CheTestsSpec, podName string) (terminated bool, err error) {
-	for {
-		select {
-		case <-time.After(15 * time.Minute):
-			return false, errors.New("timed out")
-		case <-time.Tick(15 * time.Second):
-			pod, err := k8sClient.Kube().CoreV1().Pods(testSpec.Namespace).Get(podName, metav1.GetOptions{})
-			if err != nil {
-				return true, err
-			}
-			for _, container := range pod.Status.ContainerStatuses {
-				if container.Name == testSpec.Name && container.State.Terminated != nil {
-					return true, nil
-				}
-			}
-		}
 	}
 }

@@ -9,7 +9,8 @@ spec:
     # Execute happy-path tests
     - name: "happy-path"
       namespace: "eclipse-che"
-      image: "quay.io/eclipse/che-e2e:nightly"
+      image: "quay.io/eclipse/che-e2e:7.28.1"
+      containerContext: "docker"
       env:
       - name: TEST_SUITE
         value: test-devworkspace-happy-path
@@ -39,7 +40,7 @@ spec:
         value: "true"
       artifacts:
         fromContainerPath: "/tmp/e2e/report"
-        to: "tmp/happy-path-results"
+        to: "/home/flacatusu/WORKSPACE/che-inspector/tmp"
   reporter:
     - ci: "Openshift CI"
       provider: "slack"

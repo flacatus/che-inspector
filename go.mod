@@ -3,11 +3,17 @@ module github.com/flacatus/che-inspector
 go 1.14
 
 require (
+	github.com/Microsoft/go-winio v0.4.16 // indirect
+	github.com/docker/distribution v2.7.1+incompatible // indirect
+	github.com/docker/docker v0.7.3-0.20190327010347-be7ac8be2ae0
+	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
+	github.com/opencontainers/go-digest v1.0.0 // indirect
+	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/sirupsen/logrus v1.4.2
 	github.com/slack-go/slack v0.8.2
 	github.com/spf13/cobra v1.1.3

@@ -12,16 +12,19 @@ func InitRestClient() (*rest.Config, error, *corev1client.CoreV1Client) {
 		clientcmd.NewDefaultClientConfigLoadingRules(),
 		&clientcmd.ConfigOverrides{},
 	)
+
 	// Get a rest.Config from the kubeConfig file.  This will be passed into all
 	// the client objects we create.
 	restConfig, err := kubeConfig.ClientConfig()
 	if err != nil {
 		panic(err)
 	}
+
 	// Create a Kubernetes core/v1 client.
 	coreClient, err := corev1client.NewForConfig(restConfig)
 	if err != nil {
 		panic(err)
 	}
+
 	return restConfig, err, coreClient
 }

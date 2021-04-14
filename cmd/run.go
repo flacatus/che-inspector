@@ -18,11 +18,11 @@ package cmd
 
 import (
 	"github.com/flacatus/che-inspector/pkg/common/clog"
+	"github.com/flacatus/che-inspector/pkg/common/instance"
 	"github.com/flacatus/che-inspector/pkg/common/validator"
 	"github.com/flacatus/che-inspector/pkg/suites"
 	"log"
 
-	"github.com/flacatus/che-inspector/pkg/common/instance"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -51,7 +51,7 @@ to quickly create a Cobra application.`,
 			return
 		}
 		clog.LOGGER.Infof("Successfully validated configuration file. Starting test suites from configuration file.")
-		err = suites.StartCheSuiteTests(context)
+		err = suites.RunTestSuite(context)
 		if err != nil {
 			log.Println(err)
 		}
