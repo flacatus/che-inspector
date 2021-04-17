@@ -1,25 +1,28 @@
 package kubernetes
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/flacatus/che-inspector/pkg/api"
 	"github.com/flacatus/che-inspector/pkg/common/client"
 	"github.com/flacatus/che-inspector/pkg/common/clog"
 	"github.com/flacatus/che-inspector/pkg/common/reporter"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"time"
 )
 
 const (
-	artifactsVolumeName                 = "test-run-results"
-	artifactsDownloadContainerName      = "download"
-	downloadArtifactsContainerImage     = "eeacms/rsync"
-	testHarnessRoleName                 = "test-harness-role"
-	testHarnessRoleBindingName          = "test-harness-role-binding"
+	artifactsVolumeName             = "test-run-results"
+	artifactsDownloadContainerName  = "download"
+	downloadArtifactsContainerImage = "eeacms/rsync"
+	testHarnessRoleName             = "test-harness-role"
+	testHarnessRoleBindingName      = "test-harness-role-binding"
 )
 
+// Comment
 func StartK8STestSuites(instance *api.CliContext) (err error) {
 	// TODO: Refactor this function
 	for _, suite := range instance.CheInspector.Spec.Tests {
@@ -44,13 +47,13 @@ func StartK8STestSuites(instance *api.CliContext) (err error) {
 }
 
 // The GetTestSuitePodSpec returns pod specification with pod to be created with go client
-func GetTestSuitePodSpec(testSpec *api.CheTestsSpec) *corev1.Pod  {
+func GetTestSuitePodSpec(testSpec *api.CheTestsSpec) *corev1.Pod {
 	return &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: testSpec.Name,
-			Namespace: testSpec.Namespace,
+			Namespace:    testSpec.Namespace,
 		},
-		Spec:       corev1.PodSpec{
+		Spec: corev1.PodSpec{
 			Volumes: []corev1.Volume{
 				{
 					Name: artifactsVolumeName,
@@ -59,10 +62,10 @@ func GetTestSuitePodSpec(testSpec *api.CheTestsSpec) *corev1.Pod  {
 			RestartPolicy: corev1.RestartPolicyNever,
 			Containers: []corev1.Container{
 				{
-					Name: testSpec.Name,
-					Image: testSpec.Image,
-					Args: testSpec.Args,
-					Env: testSpec.Env,
+					Name:            testSpec.Name,
+					Image:           testSpec.Image,
+					Args:            testSpec.Args,
+					Env:             testSpec.Env,
 					ImagePullPolicy: corev1.PullAlways,
 					VolumeMounts: []corev1.VolumeMount{
 						{
@@ -98,7 +101,7 @@ func waitForContainerToBeTerminated(k8sClient *client.K8sClient, testSpec *api.C
 		case <-time.After(15 * time.Minute):
 			return false, errors.New("timed out")
 		case <-time.Tick(15 * time.Second):
-			pod, err := k8sClient.Kube().CoreV1().Pods(testSpec.Namespace).Get(podName, metav1.GetOptions{})
+			pod, err := k8sClient.Kube().CoreV1().Pods(testSpec.Namespace).Get(context.TODO(),podName, metav1.GetOptions{})
 			if err != nil {
 				return true, err
 			}

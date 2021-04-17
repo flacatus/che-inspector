@@ -10,12 +10,14 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Comment
 type CliContext struct {
 	CheInspector *CheInspector
 	Client       *client.K8sClient
 	DockerClient *dockerClient.Client
 }
 
+// Comment
 func GetCliContext() (cliContext *CliContext, e error) {
 	cliInstance, err := readCheInspectorConfig()
 	if err != nil {
@@ -38,6 +40,7 @@ func GetCliContext() (cliContext *CliContext, e error) {
 	}, nil
 }
 
+// Comment
 func readCheInspectorConfig() (instance *CheInspector, e error) {
 	c := &CheInspector{}
 	yamlFileContent, err := ioutil.ReadFile(viper.GetString("file"))

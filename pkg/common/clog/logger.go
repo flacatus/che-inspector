@@ -7,6 +7,7 @@ import (
 // LOGGER is a globally configured clog
 var LOGGER = logrus.New()
 
+// Comment
 func init() {
 	LOGGER.Formatter = new(logrus.TextFormatter)                                     // Default
 	LOGGER.Formatter.(*logrus.TextFormatter).FullTimestamp = true                    // Enable timestamp

@@ -1,4 +1,4 @@
-package cmd
+package version
 
 import (
 	"fmt"
@@ -16,6 +16,7 @@ var (
 	// buildDate in ISO8601 format, output of $(date -u +'%Y-%m-%dT%H:%M:%SZ')
 	buildDate string
 )
+
 type Version struct {
 	CliVersion string `yaml:"cliVersion"`
 	GitCommit  string `yaml:"gitCommit"`
@@ -23,6 +24,7 @@ type Version struct {
 	GoOs       string `yaml:"goOs"`
 	GoArch     string `yaml:"goArch"`
 }
+
 func getVersion() Version {
 	return Version{
 		CliVersion: cliVersion,
@@ -32,23 +34,23 @@ func getVersion() Version {
 		GoArch:     runtime.GOARCH,
 	}
 }
+
 func (v Version) Print() {
-	version, err := yaml.Marshal(v)
-	if err != nil {
-		panic("Error reading yukapasa version")
-	}
+	version, _ := yaml.Marshal(v)
 	fmt.Printf(string(version) + "\n")
 }
-func AddVersionCommand(parent *cobra.Command) {
-	cmd := &cobra.Command{
+
+func AddVersionCommand() *cobra.Command {
+	return &cobra.Command{
 		Use:     "version",
 		Short:   "Print the che-inspector version",
-		Long:    `Print the che-inspector version`,
+		Long:    `
+      Check che-inspector version.`,
 		Example: `che-inspector version`,
 		Run:     runVersion,
 	}
-	parent.AddCommand(cmd)
 }
+
 func runVersion(_ *cobra.Command, _ []string) {
 	getVersion().Print()
 }

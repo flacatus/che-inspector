@@ -1,36 +1,39 @@
 package kubernetes
 
 import (
+	"context"
 	"fmt"
+	util2 "github.com/flacatus/che-inspector/pkg/util"
+
 	"github.com/flacatus/che-inspector/pkg/api"
 	"github.com/flacatus/che-inspector/pkg/common/client"
-	"github.com/flacatus/che-inspector/pkg/common/util"
 	"github.com/sirupsen/logrus"
 	v1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// Comment
 func DeployTestHarness(k8sClient *client.K8sClient, testSpec *api.CheTestsSpec) (err error) {
-	role, err := k8sClient.Kube().RbacV1().Roles(testSpec.Namespace).Create(getSpecRole(testSpec))
+	role, err := k8sClient.Kube().RbacV1().Roles(testSpec.Namespace).Create(context.TODO(),getSpecRole(testSpec), metav1.CreateOptions{})
 	if err != nil {
 		logrus.Error(err)
 	}
 	logrus.Infof("Successufully create roles for test-harness %s.", role.Name)
 
-	rb, err := k8sClient.Kube().RbacV1().RoleBindings(testSpec.Namespace).Create(getRoleBindingSpec(testSpec))
+	rb, err := k8sClient.Kube().RbacV1().RoleBindings(testSpec.Namespace).Create(context.TODO(),getRoleBindingSpec(testSpec), metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
 	logrus.Infof("Successufully create roleBinding for test-harness %s.", rb.Name)
 
-	pod, err := k8sClient.Kube().CoreV1().Pods(testSpec.Namespace).Create(GetTestSuitePodSpec(testSpec))
+	pod, err := k8sClient.Kube().CoreV1().Pods(testSpec.Namespace).Create(context.TODO(),GetTestSuitePodSpec(testSpec), metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
 
 	terminated, err := waitForContainerToBeTerminated(k8sClient, testSpec, pod.Name)
 	if terminated {
-		err = util.CopyArtifactsFromPod(testSpec.Artifacts.FromContainerPath, testSpec.Artifacts.To, pod.Name, testSpec.Namespace, artifactsDownloadContainerName)
+		err = util2.CopyArtifactsFromPod(testSpec.Artifacts.FromContainerPath, testSpec.Artifacts.To, pod.Name, testSpec.Namespace, artifactsDownloadContainerName)
 	} else {
 		return fmt.Errorf("Failed to get test-harness pod status   ")
 	}
@@ -38,6 +41,7 @@ func DeployTestHarness(k8sClient *client.K8sClient, testSpec *api.CheTestsSpec) 
 	return err
 }
 
+// Comment
 func getSpecRole(testSpec *api.CheTestsSpec) *v1.Role {
 	return &v1.Role{
 		TypeMeta: metav1.TypeMeta{
@@ -78,6 +82,7 @@ func getSpecRole(testSpec *api.CheTestsSpec) *v1.Role {
 	}
 }
 
+// Comment
 func getRoleBindingSpec(testSpec *api.CheTestsSpec) *v1.RoleBinding {
 	return &v1.RoleBinding{
 		ObjectMeta: metav1.ObjectMeta{

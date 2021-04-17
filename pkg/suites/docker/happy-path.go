@@ -2,17 +2,19 @@ package docker
 
 import (
 	"context"
+	"io"
+	"os"
+
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/flacatus/che-inspector/pkg/api"
-	"io"
-	"os"
 )
 
 var amd []string
 
+// Comment
 func RunHappyPathDocker(dockerClient *client.Client, testSpec *api.CheTestsSpec) (err error) {
 	if err := PullHappyPathImage(dockerClient, testSpec); err != nil {
 		return err
@@ -25,6 +27,7 @@ func RunHappyPathDocker(dockerClient *client.Client, testSpec *api.CheTestsSpec)
 	return nil
 }
 
+// Comment
 func PullHappyPathImage(dockerClient *client.Client, testSpec *api.CheTestsSpec) (err error) {
 	reader, err := dockerClient.ImagePull(context.Background(), testSpec.Image, types.ImagePullOptions{})
 	if err != nil {
@@ -34,18 +37,19 @@ func PullHappyPathImage(dockerClient *client.Client, testSpec *api.CheTestsSpec)
 	return nil
 }
 
+// Comment
 func CreateAndStartContainer(dockerClient *client.Client, testSpec *api.CheTestsSpec) (err error) {
 	for _, e := range testSpec.Env {
-		amd = append(amd, e.Name + "=" + e.Value)
+		amd = append(amd, e.Name+"="+e.Value)
 	}
 	resp, err := dockerClient.ContainerCreate(context.Background(), &container.Config{
 		Image: testSpec.Image,
-		Env: amd,
+		Env:   amd,
 		Tty:   false,
 	}, &container.HostConfig{
 		Mounts: []mount.Mount{
 			{
-				Type: mount.TypeBind,
+				Type:   mount.TypeBind,
 				Source: testSpec.Artifacts.To,
 				Target: testSpec.Artifacts.FromContainerPath,
 			},

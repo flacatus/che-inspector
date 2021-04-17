@@ -15,8 +15,9 @@ limitations under the License.
 */
 package main
 
-import "github.com/flacatus/che-inspector/cmd"
+import "github.com/flacatus/che-inspector/pkg/cmd"
 
 func main() {
+	cmd := cmd.NewCheInspectorCommand()
 	cmd.Execute()
 }

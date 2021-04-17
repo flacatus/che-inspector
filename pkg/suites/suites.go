@@ -6,6 +6,7 @@ import (
 	"github.com/flacatus/che-inspector/pkg/suites/kubernetes"
 )
 
+// Comment
 func RunTestSuite(instance *api.CliContext) (err error) {
 	for _, suite := range instance.CheInspector.Spec.Tests {
 		if suite.ContainerContext == "docker" {

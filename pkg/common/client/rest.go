@@ -6,6 +6,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+// Comment
 func InitRestClient() (*rest.Config, error, *corev1client.CoreV1Client) {
 	// Instantiate loader for kubeconfig file.
 	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(

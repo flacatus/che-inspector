@@ -5,6 +5,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 )
 
+// Comment
 type K8sClient struct {
 	kubeClient *kubernetes.Clientset
 }

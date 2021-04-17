@@ -12,14 +12,14 @@ TEST_RACE :=
 else
 TEST_RACE := -race
 endif
-$(CHEINSPECTOR): che-inspector_version_flags=-ldflags "-X '$(PKG)/cmd.gitCommit=$(GIT_COMMIT)' -X '$(PKG)/cmd.cliVersion=$(CLI_VERSION)' -X '$(PKG)/cmd.buildDate=$(BUILD_DATE)'"
+$(CHEINSPECTOR): che-inspector_version_flags=-ldflags "-X '$(PKG)/pkg/cmd/version.gitCommit=$(GIT_COMMIT)' -X '$(PKG)/pkg/cmd/version.cliVersion=$(CLI_VERSION)' -X '$(PKG)/pkg/cmd/version.buildDate=$(BUILD_DATE)'"
 $(CHEINSPECTOR):
 	go mod vendor
 	$(GO) build $(che-inspector_version_flags) $(extra_flags) $(TAGS) -o $@ main.go
 .PHONY: build
 build: clean $(CHEINSPECTOR)
 .PHONY: cross
-cross: che-inspector_version_flags=-ldflags "-X '$(PKG)/cmd.gitCommit=$(GIT_COMMIT)' -X '$(PKG)/cmd.cliVersion=$(CLI_VERSION)' -X '$(PKG)/cmd.buildDate=$(BUILD_DATE)'"
+cross: che-inspector_version_flags=-ldflags "-X '$(PKG)/pkg/cmd/version.gitCommit=$(GIT_COMMIT)' -X '$(PKG)/pkg/cmd/version.cliVersion=$(CLI_VERSION)' -X '$(PKG)/pkg/cmd/version.buildDate=$(BUILD_DATE)'"
 cross:
 ifeq ($(shell go env GOARCH),amd64)
 	go mod vendor

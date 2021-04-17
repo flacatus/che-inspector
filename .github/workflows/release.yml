@@ -1,5 +1,9 @@
 name: release
-on: push
+on:
+  # Trigger the workflow on push only for the main branch
+  push:
+    branches:
+      - 'main'
 defaults:
   run:
     shell: bash
@@ -10,6 +14,11 @@ jobs:
       upload_url: ${{ steps.release.outputs.upload_url }}
     steps:
       - uses: actions/checkout@v2
+      - name: Submit code coverage results
+        run: |
+         echo "" > coverage.txt
+         export CHE_WORKSPACE_ID=test_id; go test -v ./... -coverprofile coverage.txt
+         bash <(curl -s https://codecov.io/bash)
       - name: Generate tag utilities
         id: TAG_UTIL
         run: |
