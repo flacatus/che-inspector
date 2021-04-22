@@ -1,23 +1,15 @@
 package cmd
 
 import (
+	"github.com/flacatus/che-inspector/pkg/cmd/run"
 	"github.com/flacatus/che-inspector/pkg/cmd/version"
 	"github.com/flacatus/che-inspector/pkg/util"
 	"github.com/spf13/cobra"
-	"io"
 	cliflag "k8s.io/component-base/cli/flag"
-	"os"
 )
 
-var pene bool
-
-// NewCheInspectorCommand creates the `che-inspector` command with default arguments
-func NewCheInspectorCommand() *cobra.Command {
-	return NewCheInspectorCobraCommand(os.Stdin, os.Stdout, os.Stderr)
-}
-
 // NewCheInspectorCobraCommand creates the `che-inspector` command and its nested children.
-func NewCheInspectorCobraCommand(in io.Reader, out, err io.Writer) *cobra.Command {
+func NewCheInspectorCobraCommand() *cobra.Command {
 	// Parent command to which all subcommands are added.
 	cmds := &cobra.Command{
 		Use:   "che-inspector",
@@ -46,6 +38,7 @@ func NewCheInspectorCobraCommand(in io.Reader, out, err io.Writer) *cobra.Comman
 		{
 			Message: "Check Che Inspector version",
 			Commands: []*cobra.Command{
+				run.NewRunCommand(),
 				version.AddVersionCommand(),
 			},
 		},

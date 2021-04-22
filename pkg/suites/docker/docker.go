@@ -2,6 +2,7 @@ package docker
 
 import (
 	"context"
+	"github.com/flacatus/che-inspector/pkg/common/clog"
 	"io"
 	"os"
 
@@ -12,10 +13,11 @@ import (
 	"github.com/flacatus/che-inspector/pkg/api"
 )
 
-var amd []string
+var env []string
 
 // Comment
 func RunHappyPathDocker(dockerClient *client.Client, testSpec *api.CheTestsSpec) (err error) {
+	clog.LOGGER.Info("Pulling Happy Path...")
 	if err := PullHappyPathImage(dockerClient, testSpec); err != nil {
 		return err
 	}
@@ -29,22 +31,28 @@ func RunHappyPathDocker(dockerClient *client.Client, testSpec *api.CheTestsSpec)
 
 // Comment
 func PullHappyPathImage(dockerClient *client.Client, testSpec *api.CheTestsSpec) (err error) {
-	reader, err := dockerClient.ImagePull(context.Background(), testSpec.Image, types.ImagePullOptions{})
+	_, err = dockerClient.ImagePull(context.Background(), testSpec.Image, types.ImagePullOptions{})
 	if err != nil {
+		clog.LOGGER.Fatalf("Error pulling image %s, %v", testSpec.Image, err)
+
 		return err
 	}
-	_, _ = io.Copy(os.Stdout, reader)
+
 	return nil
 }
 
 // Comment
 func CreateAndStartContainer(dockerClient *client.Client, testSpec *api.CheTestsSpec) (err error) {
 	for _, e := range testSpec.Env {
-		amd = append(amd, e.Name+"="+e.Value)
+		env = append(env, e.Name+"="+e.Value)
 	}
+	if os.MkdirAll(testSpec.Artifacts.To, 0755) != nil && !os.IsExist(err) {
+		clog.LOGGER.Fatalf("Cannot create directory %v", testSpec.Artifacts.To)
+	}
+
 	resp, err := dockerClient.ContainerCreate(context.Background(), &container.Config{
 		Image: testSpec.Image,
-		Env:   amd,
+		Env:   env,
 		Tty:   false,
 	}, &container.HostConfig{
 		Mounts: []mount.Mount{
@@ -71,3 +79,12 @@ func CreateAndStartContainer(dockerClient *client.Client, testSpec *api.CheTests
 
 	return err
 }
+
+// ExistDirectoryPath returns whether the given file or directory exists
+func ExistDirectoryPath(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil { return true, nil }
+	if os.IsNotExist(err) { return false, nil }
+	return false, err
+}
+

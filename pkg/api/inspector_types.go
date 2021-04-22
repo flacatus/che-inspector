@@ -22,7 +22,7 @@ type CliSpec struct {
 // The CheTestsSpec define the information about the suites to execute against Che instance.
 // Supported suites are: happy-path, test-harness
 type CheTestsSpec struct {
-	Name             string           `yaml:"name",validate:"required"`
+	Name             string           `yaml:"name"`
 	Namespace        string           `yaml:"namespace,omitempty"`
 	Image            string           `yaml:"image"`
 	Args             []string         `yaml:"args,omitempty"`

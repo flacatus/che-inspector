@@ -2,13 +2,15 @@ package kubernetes
 
 import (
 	"context"
-	"errors"
+	e "errors"
 	"fmt"
+	"github.com/flacatus/che-inspector/pkg/common/clog"
+	"github.com/flacatus/che-inspector/pkg/util"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"time"
 
 	"github.com/flacatus/che-inspector/pkg/api"
 	"github.com/flacatus/che-inspector/pkg/common/client"
-	"github.com/flacatus/che-inspector/pkg/common/clog"
 	"github.com/flacatus/che-inspector/pkg/common/reporter"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -18,32 +20,55 @@ const (
 	artifactsVolumeName             = "test-run-results"
 	artifactsDownloadContainerName  = "download"
 	downloadArtifactsContainerImage = "eeacms/rsync"
-	testHarnessRoleName             = "test-harness-role"
-	testHarnessRoleBindingName      = "test-harness-role-binding"
 )
 
 // Comment
 func StartK8STestSuites(instance *api.CliContext) (err error) {
-	// TODO: Refactor this function
 	for _, suite := range instance.CheInspector.Spec.Tests {
-		if suite.Name == "test-harness" {
-			clog.LOGGER.Info("Starting test-harness test suite")
+		if err := DeployTestSuite(instance.Client, &suite); err != nil {
+			_ = reporter.SendSlackMessage(&instance.CheInspector.Spec.Report[0], "Che-Inspector: Failed to run happy path tests ")
 
-			return DeployTestHarness(instance.Client, &suite)
+			return err
 		}
-		if suite.Name == "happy-path" {
-			clog.LOGGER.Info("Starting happy path test suite")
+		_ = reporter.SendSlackMessage(&instance.CheInspector.Spec.Report[0], "Che-Inspector: DevWorkspace run successfully in openshift ")	}
 
-			if err := DeployHappyPath(instance.Client, &suite); err != nil {
-				_ = reporter.SendSlackMessage(&instance.CheInspector.Spec.Report[0], "Che-Inspector: Failed to run happy path tests ")
+	return nil
+}
 
-				return err
+// Comment
+func DeployTestSuite(k8sClient *client.K8sClient, testSpec *api.CheTestsSpec) (err error) {
+	if _, err := k8sClient.Kube().CoreV1().Namespaces().Get(context.TODO(),testSpec.Namespace, metav1.GetOptions{}); err != nil {
+		if errors.IsNotFound(err) {
+			clog.LOGGER.Infof("Namespace %s doesn't exist. Creating new one...", testSpec.Namespace)
+			if _, err := k8sClient.Kube().CoreV1().Namespaces().Create(context.TODO(), GetNamespaceSpec(testSpec), metav1.CreateOptions{}); err != nil {
+				clog.LOGGER.Fatalf("Failed to create namespace %s: %v", testSpec.Namespace, err)
 			}
-			_ = reporter.SendSlackMessage(&instance.CheInspector.Spec.Report[0], "Che-Inspector: DevWorkspace run successfully in openshift ")
 		}
 	}
 
-	return nil
+	pod, err := k8sClient.Kube().CoreV1().Pods(testSpec.Namespace).Create(context.TODO(), GetTestSuitePodSpec(testSpec), metav1.CreateOptions{})
+	if err != nil {
+		return err
+	}
+
+	terminated, err := waitForContainerToBeTerminated(k8sClient, testSpec, pod.Name)
+	if terminated {
+		err = util.CopyArtifactsFromPod(testSpec.Artifacts.FromContainerPath, testSpec.Artifacts.To, pod.Name, testSpec.Namespace, artifactsDownloadContainerName)
+	} else {
+		return fmt.Errorf("Failed to get test pod status")
+	}
+
+	return err
+}
+
+// GetNamespaceSpec return namespace object
+func GetNamespaceSpec(testSpec *api.CheTestsSpec) *corev1.Namespace {
+	return &corev1.Namespace{
+		TypeMeta: metav1.TypeMeta{},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: testSpec.Namespace,
+		},
+	}
 }
 
 // The GetTestSuitePodSpec returns pod specification with pod to be created with go client
@@ -99,7 +124,7 @@ func waitForContainerToBeTerminated(k8sClient *client.K8sClient, testSpec *api.C
 	for {
 		select {
 		case <-time.After(15 * time.Minute):
-			return false, errors.New("timed out")
+			return false, e.New("timed out")
 		case <-time.Tick(15 * time.Second):
 			pod, err := k8sClient.Kube().CoreV1().Pods(testSpec.Namespace).Get(context.TODO(),podName, metav1.GetOptions{})
 			if err != nil {

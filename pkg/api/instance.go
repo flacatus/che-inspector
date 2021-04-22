@@ -2,12 +2,11 @@ package api
 
 import (
 	"fmt"
-	"io/ioutil"
-
 	dockerClient "github.com/docker/docker/client"
 	"github.com/flacatus/che-inspector/pkg/common/client"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
+	"io/ioutil"
 )
 
 // Comment
@@ -33,6 +32,7 @@ func GetCliContext() (cliContext *CliContext, e error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &CliContext{
 		CheInspector: cliInstance,
 		Client:       k8sClient,

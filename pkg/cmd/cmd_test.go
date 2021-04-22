@@ -7,7 +7,7 @@ import (
 
 func TestNormalizationFuncGlobalExistence(t *testing.T) {
 	// This test can be safely deleted when we will not support multiple flag formats
-	root := NewCheInspectorCommand()
+	root := NewCheInspectorCobraCommand()
 	e := root.Run
 	e(root, []string{"foo"})
 
