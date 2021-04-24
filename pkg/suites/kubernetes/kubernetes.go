@@ -11,7 +11,6 @@ import (
 
 	"github.com/flacatus/che-inspector/pkg/api"
 	"github.com/flacatus/che-inspector/pkg/common/client"
-	"github.com/flacatus/che-inspector/pkg/common/reporter"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -26,11 +25,10 @@ const (
 func StartK8STestSuites(instance *api.CliContext) (err error) {
 	for _, suite := range instance.CheInspector.Spec.Tests {
 		if err := DeployTestSuite(instance.Client, &suite); err != nil {
-			_ = reporter.SendSlackMessage(&instance.CheInspector.Spec.Report[0], "Che-Inspector: Failed to run happy path tests ")
 
 			return err
 		}
-		_ = reporter.SendSlackMessage(&instance.CheInspector.Spec.Report[0], "Che-Inspector: DevWorkspace run successfully in openshift ")	}
+	}
 
 	return nil
 }

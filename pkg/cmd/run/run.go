@@ -2,6 +2,7 @@ package run
 
 import (
 	"github.com/flacatus/che-inspector/pkg/api"
+	report_portal "github.com/flacatus/che-inspector/pkg/api/report-portal"
 	"github.com/flacatus/che-inspector/pkg/common/clog"
 	"github.com/flacatus/che-inspector/pkg/common/validator"
 	"github.com/flacatus/che-inspector/pkg/suites"
@@ -22,7 +23,12 @@ func NewRunCommand() *cobra.Command {
             In PROGRESS`,
 		Example: "che-inspector run --file=samples/happy-path.yaml",
 		Run: func(cmd *cobra.Command, args []string) {
+
 			context, err := api.GetCliContext()
+
+			rp := &context.CheInspector.Spec.Report[0].ReportPortal
+			clientReport := report_portal.NewReportPortalClient(rp)
+			clientReport.SendResultsToReportPortal()
 
 			if err != nil {
 				clog.LOGGER.Fatal(err)

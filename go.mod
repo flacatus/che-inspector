@@ -15,7 +15,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/sirupsen/logrus v1.7.0
-	github.com/slack-go/slack v0.8.2
+	github.com/slack-go/slack v0.8.2 // indirect
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/viper v1.7.1
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect

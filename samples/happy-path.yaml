@@ -41,8 +41,9 @@ spec:
         fromContainerPath: "/tmp/e2e/report"
         to: "/home/flacatusu/WORKSPACE/che-inspector/tmp"
   reporter:
-    - ci: "Openshift CI"
-      provider: "slack"
-      channel: "che-qe-notifications"
-      token: ""
-      url: ""
+    - reportPortal:
+        name: "happy-path"
+        baseUrl: "<reportPortalUrl>"
+        token: "<token>"
+        project: "<reportPortalProject>"
+        resultsPath: "/tmp"

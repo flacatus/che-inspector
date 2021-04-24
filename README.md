@@ -1,5 +1,3 @@
-[![codecov](https://codecov.io/gh/flacatus/che-inspector/branch/main/graph/badge.svg?token=Lhm70E8HsQ)](https://codecov.io/gh/flacatus/che-inspector)
-
 # Che-Inspector
 Cli solution written in golang using cobra to allow running tests in any container platform.
 

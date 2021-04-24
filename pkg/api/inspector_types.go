@@ -20,7 +20,6 @@ type CliSpec struct {
 }
 
 // The CheTestsSpec define the information about the suites to execute against Che instance.
-// Supported suites are: happy-path, test-harness
 type CheTestsSpec struct {
 	Name             string           `yaml:"name"`
 	Namespace        string           `yaml:"namespace,omitempty"`
@@ -39,11 +38,16 @@ type CheArtifactsSpec struct {
 
 // The CheReporterSpec define a basic reporter to send suites results. Options supported: slack
 type CheReporterSpec struct {
-	CI       string `yaml:"ci"`
-	Channel  string `yaml:"channel,omitempty"`
-	Provider string `yaml:"provider"`
-	Token    string `yaml:"token"`
-	URL      string `yaml:"url"`
+	ReportPortal ReportPortal `yaml:"reportPortal"`
+}
+
+// The ReportPortal define basic information to send information to Report Portal
+type ReportPortal struct {
+	Name        string `yaml:"name"`
+	BaseUrl     string `yaml:"baseUrl"`
+	Token       string `yaml:"token"`
+	Project     string `yaml:"project"`
+	ResultsPath string `yaml:"resultsPath"`
 }
 
 // The CheInspector allows defining and managing Che suites

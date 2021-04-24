@@ -1,6 +1,5 @@
 name: 'CheInspector'
 version: '0.0.0'
-ide: 'Eclipse Che'
 spec:
   tests:
     # Execute test Harness tests
@@ -18,9 +17,11 @@ spec:
         - "--csv-name=crwoperator.v2.7.1"
       artifacts:
         fromContainerPath: '/test-run-results'
-        to: 'tmp/test-harnes-results'
+        to: '/tmp/test-harnes-results'
   reporter:
-    - ci: "Openshift CI"
-      provider: "slack"
-      token: ""
-      url: ""
+    - reportPortal:
+        name: "test-harness"
+        baseUrl: "<reportPortalUrl>"
+        token: "<token>"
+        project: "<reportPortalProject>"
+        resultsPath: "/tmp/test-harnes-results"
