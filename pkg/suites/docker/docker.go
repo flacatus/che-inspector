@@ -1,10 +1,23 @@
+// Copyright (c) 2021 The Jaeger Authors.
+// # Copyright (c) 2019-2021 Red Hat, Inc.
+// # This program and the accompanying materials are made
+// # available under the terms of the Eclipse Public License 2.0
+// # which is available at https://www.eclipse.org/legal/epl-2.0/
+// #
+// # SPDX-License-Identifier: EPL-2.0
+// #
+// # Contributors:
+// #   Red Hat, Inc. - initial API and implementation
+// #
+
 package docker
 
 import (
 	"context"
-	"github.com/flacatus/che-inspector/pkg/common/clog"
 	"io"
 	"os"
+
+	"github.com/flacatus/che-inspector/pkg/common/clog"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -16,9 +29,9 @@ import (
 var env []string
 
 // Comment
-func RunHappyPathDocker(dockerClient *client.Client, testSpec *api.CheTestsSpec) (err error) {
-	clog.LOGGER.Info("Pulling Happy Path...")
-	if err := PullHappyPathImage(dockerClient, testSpec); err != nil {
+func RunTestsInDockerContainer(dockerClient *client.Client, testSpec *api.CheTestsSpec) (err error) {
+	clog.LOGGER.Info("Pulling Test image...")
+	if err := PullTestImage(dockerClient, testSpec); err != nil {
 		return err
 	}
 
@@ -30,7 +43,7 @@ func RunHappyPathDocker(dockerClient *client.Client, testSpec *api.CheTestsSpec)
 }
 
 // Comment
-func PullHappyPathImage(dockerClient *client.Client, testSpec *api.CheTestsSpec) (err error) {
+func PullTestImage(dockerClient *client.Client, testSpec *api.CheTestsSpec) (err error) {
 	_, err = dockerClient.ImagePull(context.Background(), testSpec.Image, types.ImagePullOptions{})
 	if err != nil {
 		clog.LOGGER.Fatalf("Error pulling image %s, %v", testSpec.Image, err)
@@ -83,8 +96,11 @@ func CreateAndStartContainer(dockerClient *client.Client, testSpec *api.CheTests
 // ExistDirectoryPath returns whether the given file or directory exists
 func ExistDirectoryPath(path string) (bool, error) {
 	_, err := os.Stat(path)
-	if err == nil { return true, nil }
-	if os.IsNotExist(err) { return false, nil }
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
 	return false, err
 }
-

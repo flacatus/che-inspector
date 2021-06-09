@@ -1,6 +1,20 @@
+// Copyright (c) 2021 The Jaeger Authors.
+// //
+// // Copyright (c) 2021 Red Hat, Inc.
+// // This program and the accompanying materials are made
+// // available under the terms of the Eclipse Public License 2.0
+// // which is available at https://www.eclipse.org/legal/epl-2.0/
+// //
+// // SPDX-License-Identifier: EPL-2.0
+// //
+// // Contributors:
+// //   Red Hat, Inc. - initial API and implementation
+// //
+
 package cmd
 
 import (
+	"github.com/flacatus/che-inspector/pkg/cmd/reporter"
 	"github.com/flacatus/che-inspector/pkg/cmd/run"
 	"github.com/flacatus/che-inspector/pkg/cmd/version"
 	"github.com/flacatus/che-inspector/pkg/util"
@@ -39,6 +53,7 @@ func NewCheInspectorCobraCommand() *cobra.Command {
 			Message: "Check Che Inspector version",
 			Commands: []*cobra.Command{
 				run.NewRunCommand(),
+				reporter.NewReporterCommand(),
 				version.AddVersionCommand(),
 			},
 		},

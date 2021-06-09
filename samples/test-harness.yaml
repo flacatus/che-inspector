@@ -1,14 +1,16 @@
 name: 'CheInspector'
 version: '0.0.0'
+ide: 'Eclipse Che'
 spec:
   tests:
     # Execute test Harness tests
     - name: 'test-harness'
-      namespace: 'openshift-workspaces'
-      image: 'quay.io/eclipse/che-e2e:nightly'
+      containerContext: 'kubernetes'
+      namespace: 'flacatus-crw'
+      image: 'quay.io/crw/osd-e2e:nightly'
       args:
         - "--osd-provider=false"
-        - "--namespace=openshift-workspaces"
+        - "--namespace=flacatus-crw"
         - "--subscription-name=codeready-workspaces"
         - "--channel=latest"
         - "--source-ns=openshift-marketplace"
@@ -17,11 +19,11 @@ spec:
         - "--csv-name=crwoperator.v2.7.1"
       artifacts:
         fromContainerPath: '/test-run-results'
-        to: '/tmp/test-harnes-results'
+        to: 'tmp/test-harnes-results'
   reporter:
     - reportPortal:
-        name: "test-harness"
+        name: "<name-of artifacts>"
         baseUrl: "<reportPortalUrl>"
         token: "<token>"
         project: "<reportPortalProject>"
-        resultsPath: "/tmp/test-harnes-results"
+        resultsPath: "<report>"

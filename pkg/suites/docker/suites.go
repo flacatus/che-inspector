@@ -7,7 +7,7 @@ import (
 // Comment
 func RunDockerSuite(instance *api.CliContext) (err error) {
 	for _, suite := range instance.CheInspector.Spec.Tests {
-		if err := RunHappyPathDocker(instance.DockerClient, &suite); err != nil {
+		if err := RunTestsInDockerContainer(instance.DockerClient, &suite); err != nil {
 			return err
 
 		}

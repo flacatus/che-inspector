@@ -1,3 +1,16 @@
+// Copyright (c) 2021 The Jaeger Authors.
+// //
+// // Copyright (c) 2021 Red Hat, Inc.
+// // This program and the accompanying materials are made
+// // available under the terms of the Eclipse Public License 2.0
+// // which is available at https://www.eclipse.org/legal/epl-2.0/
+// //
+// // SPDX-License-Identifier: EPL-2.0
+// //
+// // Contributors:
+// //   Red Hat, Inc. - initial API and implementation
+// //
+
 package report_portal
 
 import (
@@ -20,7 +33,7 @@ const (
 
 func (c *API) SendResultsToReportPortal() {
 	if !strings.HasSuffix(c.reportPortal.ResultsPath, "/") {
-		c.reportPortal.BaseUrl = c.reportPortal.ResultsPath + "/"
+		c.reportPortal.ResultsPath = c.reportPortal.ResultsPath + "/"
 	}
 	zipFileName := c.reportPortal.ResultsPath + c.reportPortal.Name + ".zip"
 
@@ -37,8 +50,8 @@ func (c *API) SendResultsToReportPortal() {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 	part, _ := writer.CreateFormFile("file", filepath.Base(file.Name()))
-	_, _ = io.Copy(part, file)
-	_ = writer.Close()
+	io.Copy(part, file)
+	writer.Close()
 
 	if _, err = c.Post(context.Background(), "/api/v1/"+c.reportPortal.Project+"/launch/import", writer.FormDataContentType(), body); err != nil {
 		clog.LOGGER.Fatal(err)

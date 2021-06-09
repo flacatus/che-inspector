@@ -12,6 +12,8 @@ require (
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
+	github.com/onsi/ginkgo v1.11.0 // indirect
+	github.com/onsi/gomega v1.8.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/sirupsen/logrus v1.7.0

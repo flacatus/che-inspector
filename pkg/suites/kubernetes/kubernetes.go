@@ -1,17 +1,30 @@
+// Copyright (c) 2021 The Jaeger Authors.
+// //
+// // Copyright (c) 2021 Red Hat, Inc.
+// // This program and the accompanying materials are made
+// // available under the terms of the Eclipse Public License 2.0
+// // which is available at https://www.eclipse.org/legal/epl-2.0/
+// //
+// // SPDX-License-Identifier: EPL-2.0
+// //
+// // Contributors:
+// //   Red Hat, Inc. - initial API and implementation
+// //
+
 package kubernetes
 
 import (
 	"context"
 	e "errors"
 	"fmt"
-	"github.com/flacatus/che-inspector/pkg/common/clog"
-	"github.com/flacatus/che-inspector/pkg/util"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"time"
 
 	"github.com/flacatus/che-inspector/pkg/api"
 	"github.com/flacatus/che-inspector/pkg/common/client"
+	"github.com/flacatus/che-inspector/pkg/common/clog"
+	"github.com/flacatus/che-inspector/pkg/util"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -19,6 +32,8 @@ const (
 	artifactsVolumeName             = "test-run-results"
 	artifactsDownloadContainerName  = "download"
 	downloadArtifactsContainerImage = "eeacms/rsync"
+	testHarnessRoleName             = "test-harness-role"
+	testHarnessRoleBindingName      = "test-harness-role-binding"
 )
 
 // Comment
@@ -35,7 +50,7 @@ func StartK8STestSuites(instance *api.CliContext) (err error) {
 
 // Comment
 func DeployTestSuite(k8sClient *client.K8sClient, testSpec *api.CheTestsSpec) (err error) {
-	if _, err := k8sClient.Kube().CoreV1().Namespaces().Get(context.TODO(),testSpec.Namespace, metav1.GetOptions{}); err != nil {
+	if _, err := k8sClient.Kube().CoreV1().Namespaces().Get(context.TODO(), testSpec.Namespace, metav1.GetOptions{}); err != nil {
 		if errors.IsNotFound(err) {
 			clog.LOGGER.Infof("Namespace %s doesn't exist. Creating new one...", testSpec.Namespace)
 			if _, err := k8sClient.Kube().CoreV1().Namespaces().Create(context.TODO(), GetNamespaceSpec(testSpec), metav1.CreateOptions{}); err != nil {
@@ -49,14 +64,14 @@ func DeployTestSuite(k8sClient *client.K8sClient, testSpec *api.CheTestsSpec) (e
 		return err
 	}
 
-	terminated, err := waitForContainerToBeTerminated(k8sClient, testSpec, pod.Name)
+	terminated, _ := waitForContainerToBeTerminated(k8sClient, testSpec, pod.Name)
 	if terminated {
-		err = util.CopyArtifactsFromPod(testSpec.Artifacts.FromContainerPath, testSpec.Artifacts.To, pod.Name, testSpec.Namespace, artifactsDownloadContainerName)
+		util.CopyArtifactsFromPod(testSpec.Artifacts.FromContainerPath, testSpec.Artifacts.To, pod.Name, testSpec.Namespace, artifactsDownloadContainerName)
 	} else {
 		return fmt.Errorf("Failed to get test pod status")
 	}
 
-	return err
+	return util.ExecInContainer(pod.Name, artifactsDownloadContainerName, testSpec.Namespace, "touch /tmp/done")
 }
 
 // GetNamespaceSpec return namespace object
@@ -124,13 +139,12 @@ func waitForContainerToBeTerminated(k8sClient *client.K8sClient, testSpec *api.C
 		case <-time.After(15 * time.Minute):
 			return false, e.New("timed out")
 		case <-time.Tick(15 * time.Second):
-			pod, err := k8sClient.Kube().CoreV1().Pods(testSpec.Namespace).Get(context.TODO(),podName, metav1.GetOptions{})
+			pod, err := k8sClient.Kube().CoreV1().Pods(testSpec.Namespace).Get(context.TODO(), podName, metav1.GetOptions{})
 			if err != nil {
 				return true, err
 			}
 			for _, container := range pod.Status.ContainerStatuses {
 				if container.Name == testSpec.Name && container.State.Terminated != nil {
-					fmt.Println(container.State.Running.StartedAt)
 					return true, nil
 				}
 			}

@@ -3,7 +3,8 @@ version: "0.0.0"
 spec:
   deployment:
     cli:
-      flags: "--installer=olm --platform=openshift"
+      flags: "chectl server:deploy --installer=operator --platform=minikube"
+      flavor: "che"
   tests:
     # Execute happy-path tests
     - name: "happy-path"
@@ -42,8 +43,8 @@ spec:
         to: "/home/flacatusu/WORKSPACE/che-inspector/tmp"
   reporter:
     - reportPortal:
-        name: "happy-path"
+        name: "<name-of artifacts>"
         baseUrl: "<reportPortalUrl>"
         token: "<token>"
         project: "<reportPortalProject>"
-        resultsPath: "/tmp"
+        resultsPath: "<report>"

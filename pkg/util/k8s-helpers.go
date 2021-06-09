@@ -1,3 +1,16 @@
+// Copyright (c) 2021 The Jaeger Authors.
+// //
+// // Copyright (c) 2021 Red Hat, Inc.
+// // This program and the accompanying materials are made
+// // available under the terms of the Eclipse Public License 2.0
+// // which is available at https://www.eclipse.org/legal/epl-2.0/
+// //
+// // SPDX-License-Identifier: EPL-2.0
+// //
+// // Contributors:
+// //   Red Hat, Inc. - initial API and implementation
+// //
+
 package util
 
 import (
@@ -12,6 +25,7 @@ import (
 
 	"github.com/flacatus/che-inspector/pkg/common/client"
 	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/tools/remotecommand"
 )
@@ -57,6 +71,52 @@ func CopyArtifactsFromPod(srcPath string, destPath string, podName string, names
 	destPath = path.Join(destPath, path.Base(prefix))
 	err = untarAll(reader, destPath, prefix)
 	return err
+}
+
+func ExecInContainer(podName string, container string, namespace string, command string) error {
+	cmd := []string{
+		"sh",
+		"-c",
+		command,
+	}
+	_, outStream := io.Pipe()
+	restconfig, _, coreclient := client.InitRestClient()
+	req := coreclient.RESTClient().Post().
+		Namespace(namespace).
+		Resource("pods").
+		Name(podName).
+		SubResource("exec").
+		Param("container", container).
+		Param("stdout", "true").
+		Param("stderr", "true")
+
+	option := &v1.PodExecOptions{
+		Command: cmd,
+		Stdin:   true,
+		Stdout:  true,
+		Stderr:  true,
+		TTY:     true,
+	}
+
+	req.VersionedParams(
+		option,
+		scheme.ParameterCodec,
+	)
+	exec, err := remotecommand.NewSPDYExecutor(restconfig, "POST", req.URL())
+	if err != nil {
+		return err
+	}
+	err = exec.Stream(remotecommand.StreamOptions{
+		Stdin:  os.Stdin,
+		Stdout: outStream,
+		Stderr: os.Stderr,
+		Tty:    false,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Comment

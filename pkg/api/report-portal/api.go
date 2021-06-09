@@ -1,3 +1,16 @@
+// Copyright (c) 2021 The Jaeger Authors.
+// //
+// // Copyright (c) 2021 Red Hat, Inc.
+// // This program and the accompanying materials are made
+// // available under the terms of the Eclipse Public License 2.0
+// // which is available at https://www.eclipse.org/legal/epl-2.0/
+// //
+// // SPDX-License-Identifier: EPL-2.0
+// //
+// // Contributors:
+// //   Red Hat, Inc. - initial API and implementation
+// //
+
 package report_portal
 
 import (
@@ -39,6 +52,6 @@ func (c *API) Post(ctx context.Context, path string, contentType string, body io
 		return nil, err
 	}
 	req.Header.Set("Content-Type", contentType)
-	req.Header.Set("Authorization", c.reportPortal.Token)
+	req.Header.Set("Authorization", "bearer "+c.reportPortal.Token)
 	return c.Do(req)
 }
