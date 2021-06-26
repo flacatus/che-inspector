@@ -9,6 +9,8 @@ import (
 	"github.com/flacatus/che-inspector/pkg/util"
 )
 
+// InstallCheCli install the cli which manage Red Hat CodeReady Workspaces or Eclipse Che depending on which
+// flavour was specify in the config samples
 func (d *DeployChe) InstallCheCli() error {
 	if d.deployAPI.Cli.Flavor == CHE_FLAVOUR_NAME && !util.IsCommandAvailable(CHECTL_COMMAND_NAME) {
 		if err := installChectl(); err != nil {
@@ -28,6 +30,7 @@ func (d *DeployChe) InstallCheCli() error {
 	return nil
 }
 
+// Unzip crwctl code to a given directory
 func downloadAndUnzipCrwctl(installPath string, source string) error {
 	absoluteInstallPath, err := filepath.Abs(installPath)
 	if err != nil {
@@ -51,6 +54,7 @@ func downloadAndUnzipCrwctl(installPath string, source string) error {
 	return nil
 }
 
+// Install Eclipse Che using instructions from: https://github.com/che-incubator/chectl#installation
 func installChectl() error {
 	if util.IsCommandAvailable(CHECTL_COMMAND_NAME) {
 		clog.LOGGER.Info("chectl is already installed")

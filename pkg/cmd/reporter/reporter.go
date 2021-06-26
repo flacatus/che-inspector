@@ -14,7 +14,7 @@ func NewReporterCommand() *cobra.Command {
 		Use:   "report",
 		Short: "Send test report to report-portal",
 		Long: `
-		Send test report to report-portal.
+		[WORK IN PROGRESS]Send test report to report-portal.
 
       Find more information at:
             In PROGRESS`,
@@ -37,10 +37,4 @@ func NewReporterCommand() *cobra.Command {
 	_ = cmd.MarkPersistentFlagRequired("file")
 
 	return cmd
-}
-
-type Reporter struct{}
-
-func NewReport() *Reporter {
-	return &Reporter{}
 }

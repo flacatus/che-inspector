@@ -15,6 +15,7 @@ type DeployChe struct {
 	deployAPI api.CheDeploymentSpec
 }
 
+// Creates a new controller to deal with Che installation
 func NewCheController(deploySpec api.CheDeploymentSpec) *DeployChe {
 	return &DeployChe{
 		deployAPI: deploySpec,
