@@ -1,16 +1,3 @@
-// Copyright (c) 2021 The Jaeger Authors.
-// //
-// // Copyright (c) 2021 Red Hat, Inc.
-// // This program and the accompanying materials are made
-// // available under the terms of the Eclipse Public License 2.0
-// // which is available at https://www.eclipse.org/legal/epl-2.0/
-// //
-// // SPDX-License-Identifier: EPL-2.0
-// //
-// // Contributors:
-// //   Red Hat, Inc. - initial API and implementation
-// //
-
 package util
 
 import (
@@ -69,7 +56,7 @@ func CopyArtifactsFromPod(srcPath string, destPath string, podName string, names
 	prefix = path.Clean(prefix)
 	prefix = stripPathShortcuts(prefix)
 	destPath = path.Join(destPath, path.Base(prefix))
-	err = untarAll(reader, destPath, prefix)
+	err = UntarAll(reader, destPath, prefix)
 	return err
 }
 
@@ -120,7 +107,7 @@ func ExecInContainer(podName string, container string, namespace string, command
 }
 
 // Comment
-func untarAll(reader io.Reader, destDir, prefix string) error {
+func UntarAll(reader io.Reader, destDir, prefix string) error {
 	tarReader := tar.NewReader(reader)
 	for {
 		header, err := tarReader.Next()

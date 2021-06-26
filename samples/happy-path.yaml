@@ -3,8 +3,10 @@ version: "0.0.0"
 spec:
   deployment:
     cli:
-      flags: "chectl server:deploy --installer=operator --platform=minikube"
-      flavor: "che"
+      flags: "server:deploy --platform=openshift --installer=operator --che-operator-image=quay.io/crw/crw-2-rhel8-operator:latest --chenamespace=flacatus-crw"
+      flavor: "codeready"
+      installPath: "./tmp"
+      source: "https://github.com/redhat-developer/codeready-workspaces-chectl/releases/download/2.8.0-GA-e509/codeready-workspaces-2.8.0-GA-crwctl-linux-x64.tar.gz"
   tests:
     # Execute happy-path tests
     - name: "happy-path"

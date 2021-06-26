@@ -1,18 +1,15 @@
 package reporter
 
 import (
-	"fmt"
-
 	"github.com/flacatus/che-inspector/pkg/api"
 	report_portal "github.com/flacatus/che-inspector/pkg/api/report-portal"
 	"github.com/flacatus/che-inspector/pkg/common/clog"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
-var file string
-
 func NewReporterCommand() *cobra.Command {
+	var configFile string
+
 	cmd := &cobra.Command{
 		Use:   "report",
 		Short: "Send test report to report-portal",
@@ -23,11 +20,10 @@ func NewReporterCommand() *cobra.Command {
             In PROGRESS`,
 		Example: "che-inspector report --file=samples/happy-path.yaml",
 		Run: func(cmd *cobra.Command, args []string) {
-			context, err := api.GetCliContext()
+			context, err := api.GetCliContext(configFile)
 			if err != nil {
-				clog.LOGGER.Info("Tests failed")
+				clog.LOGGER.Info(err)
 			}
-			fmt.Println(context.CheInspector)
 			for _, r := range context.CheInspector.Spec.Report {
 				if r.ReportPortal.Name != "" {
 					clientReport := report_portal.NewReportPortalClient(&r.ReportPortal)
@@ -36,8 +32,8 @@ func NewReporterCommand() *cobra.Command {
 			}
 		},
 	}
-	cmd.PersistentFlags().StringVarP(&file, "file", "f", "", "Configuration file with definitions of all suites cases to run against Che")
-	_ = viper.BindPFlag("file", cmd.PersistentFlags().Lookup("file"))
+
+	cmd.PersistentFlags().StringVarP(&configFile, "file", "f", "", "Configuration file with definitions of all suites cases to run against Che")
 	_ = cmd.MarkPersistentFlagRequired("file")
 
 	return cmd

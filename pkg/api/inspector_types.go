@@ -1,16 +1,3 @@
-// Copyright (c) 2021 The Jaeger Authors.
-// //
-// // Copyright (c) 2021 Red Hat, Inc.
-// // This program and the accompanying materials are made
-// // available under the terms of the Eclipse Public License 2.0
-// // which is available at https://www.eclipse.org/legal/epl-2.0/
-// //
-// // SPDX-License-Identifier: EPL-2.0
-// //
-// // Contributors:
-// //   Red Hat, Inc. - initial API and implementation
-// //
-
 package api
 
 import corev1 "k8s.io/api/core/v1"
@@ -29,8 +16,10 @@ type CheDeploymentSpec struct {
 
 // The CliSpec defines the flags used by Che cli
 type CliSpec struct {
-	Flavor string `yaml:"flavor,omitempty"`
-	Flags  string `yaml:"flags"`
+	Flavor      string `yaml:"flavor,omitempty"`
+	Flags       string `yaml:"flags"`
+	InstallPath string `yaml:"installPath"`
+	Source      string `yaml:"source"`
 }
 
 // The CheTestsSpec define the information about the suites to execute against Che instance.

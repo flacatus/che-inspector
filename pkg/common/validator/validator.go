@@ -1,27 +1,15 @@
-// Copyright (c) 2021 The Jaeger Authors.
-// //
-// // Copyright (c) 2021 Red Hat, Inc.
-// // This program and the accompanying materials are made
-// // available under the terms of the Eclipse Public License 2.0
-// // which is available at https://www.eclipse.org/legal/epl-2.0/
-// //
-// // SPDX-License-Identifier: EPL-2.0
-// //
-// // Contributors:
-// //   Red Hat, Inc. - initial API and implementation
-// //
-
 package validator
 
 import (
 	"fmt"
+
 	"github.com/flacatus/che-inspector/pkg/api"
 	"github.com/go-playground/validator"
 )
 
 // The CheInspectorValidator validate all fields from structure read it from yaml file.
 // Validate all basic fields like name, version etc and if exists tests in yaml file
-func CheInspectorValidator(inspector *api.CheInspector) (err error){
+func CheInspectorValidator(inspector *api.CheInspector) (err error) {
 	validate := validator.New()
 	// register validation for 'CheInspector'
 	// NOTE: only have to register a non-pointer type for 'CheInspector', validator
@@ -65,13 +53,13 @@ func validateCheInspectorStruct(sl validator.StructLevel) {
 		sl.ReportError(inspector.Version, "tests", "Tests", "EmptyTests", "")
 	}
 
-	for _, testSuite := range inspector.Spec.Tests{
+	for _, testSuite := range inspector.Spec.Tests {
 		validateTestsStruct(testSuite, sl)
 	}
 }
 
 // Validate if yaml tests contain a name and a namespace
-func validateTestsStruct(testSuite api.CheTestsSpec, sl validator.StructLevel)  {
+func validateTestsStruct(testSuite api.CheTestsSpec, sl validator.StructLevel) {
 	if testSuite.Name == "" {
 		sl.ReportError(testSuite.Name, "name", "Name", "testSuite", "")
 	}

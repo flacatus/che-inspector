@@ -2,47 +2,42 @@ package run
 
 import (
 	"github.com/flacatus/che-inspector/pkg/api"
+	"github.com/flacatus/che-inspector/pkg/api/che"
 	"github.com/flacatus/che-inspector/pkg/common/clog"
 	"github.com/flacatus/che-inspector/pkg/common/validator"
-	"github.com/flacatus/che-inspector/pkg/suites"
 	_ "github.com/flacatus/che-inspector/pkg/suites"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
-var file string
-
 func NewRunCommand() *cobra.Command {
+	var fileStream string
+
 	cmd := &cobra.Command{
 		Use:   "run",
-		Short: "Start test suites from a custom configuration",
+		Short: "Send test report to report-portal",
 		Long: `
-      Start test suites from a given Che Inspector file.
+		Send test report to report-portal.
 
       Find more information at:
             In PROGRESS`,
-		Example: "che-inspector run --file=samples/happy-path.yaml",
+		Example: "che-inspector report --file=samples/happy-path.yaml",
 		Run: func(cmd *cobra.Command, args []string) {
-			context, err := PreRunningTasks()
+			_, err := PreRunningTasks(fileStream)
 			if err != nil {
-				clog.LOGGER.Fatal(err)
-			}
-			_ = suites.RunTestSuite(context)
-			if err != nil {
-				clog.LOGGER.Fatal(err)
+				clog.LOGGER.Info(err)
 			}
 		},
 	}
-	cmd.PersistentFlags().StringVarP(&file, "file", "f", "", "Configuration file with definitions of all suites cases to run against Che")
-	_ = viper.BindPFlag("file", cmd.PersistentFlags().Lookup("file"))
+
+	cmd.PersistentFlags().StringVarP(&fileStream, "file", "f", "", "Configuration file with definitions of all suites cases to run against Che")
 	_ = cmd.MarkPersistentFlagRequired("file")
 
 	return cmd
 }
 
-func PreRunningTasks() (cliContext *api.CliContext, err error) {
+func PreRunningTasks(configFile string) (cliContext *api.CliContext, err error) {
 	clog.LOGGER.Infof("Starting to validate test configuration and generating cli context")
-	context, err := api.GetCliContext()
+	context, err := api.GetCliContext(configFile)
 	if err != nil {
 		return context, err
 	}
@@ -50,6 +45,17 @@ func PreRunningTasks() (cliContext *api.CliContext, err error) {
 	err = validator.CheInspectorValidator(context.CheInspector)
 	if err != nil {
 		return context, err
+	}
+
+	if context.CheInspector.Spec.Deployment != (api.CheDeploymentSpec{}) {
+		reconcileInstall := che.NewCheController(context.CheInspector.Spec.Deployment)
+		if err = reconcileInstall.InstallCheCli(); err != nil {
+			clog.LOGGER.Fatal(err)
+		}
+
+		if err = reconcileInstall.DeployIde(); err != nil {
+			clog.LOGGER.Fatalf("Unable to deploy IDE. Please check your deploy command and flags, %s", err)
+		}
 	}
 
 	return context, nil
