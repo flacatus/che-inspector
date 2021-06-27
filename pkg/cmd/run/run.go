@@ -5,13 +5,13 @@ import (
 	"github.com/flacatus/che-inspector/pkg/api/che"
 	"github.com/flacatus/che-inspector/pkg/common/clog"
 	"github.com/flacatus/che-inspector/pkg/common/validator"
+	"github.com/flacatus/che-inspector/pkg/suites"
 	_ "github.com/flacatus/che-inspector/pkg/suites"
 	"github.com/spf13/cobra"
 )
 
 func NewRunCommand() *cobra.Command {
 	var fileStream string
-
 	cmd := &cobra.Command{
 		Use:   "run",
 		Short: "Send test report to report-portal",
@@ -22,9 +22,12 @@ func NewRunCommand() *cobra.Command {
             In PROGRESS`,
 		Example: "che-inspector report --file=samples/happy-path.yaml",
 		Run: func(cmd *cobra.Command, args []string) {
-			_, err := PreRunningTasks(fileStream)
+			context, err := PreRunningTasks(fileStream)
 			if err != nil {
 				clog.LOGGER.Info(err)
+			}
+			if err := suites.RunTestSuite(context); err != nil {
+				clog.LOGGER.Fatal(err)
 			}
 		},
 	}
@@ -44,7 +47,7 @@ func PreRunningTasks(configFile string) (cliContext *api.CliContext, err error) 
 
 	err = validator.CheInspectorValidator(context.CheInspector)
 	if err != nil {
-		return context, err
+		clog.LOGGER.Fatal(err)
 	}
 
 	if context.CheInspector.Spec.Deployment != (api.CheDeploymentSpec{}) {

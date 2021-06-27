@@ -20,6 +20,7 @@ type CliSpec struct {
 	Flags       string `yaml:"flags"`
 	InstallPath string `yaml:"installPath"`
 	Source      string `yaml:"source"`
+	Namespace   string `yaml:"namespace"`
 }
 
 // The CheTestsSpec define the information about the suites to execute against Che instance.

@@ -24,7 +24,7 @@ func CheInspectorValidator(inspector *api.CheInspector) (err error) {
 
 		for _, err := range err.(validator.ValidationErrors) {
 			if err.Tag() == "Missing" {
-				return fmt.Errorf("Failed to validate che-inspector config file.  Field '%s' is missing. Structure field: '%s'.", err.Field(), err.StructNamespace())
+				return fmt.Errorf("Failed to validate che-inspector config file.  Field '%s' is missing from config file. Structure field: '%s'.", err.Field(), err.StructNamespace())
 			}
 			if err.Tag() == "EmptyTests" {
 				return fmt.Errorf("Failed to validate che-inspector config file. No test specified.  Field '%s' is empty. Structure field: '%s'.", err.Field(), err.StructNamespace())
@@ -43,6 +43,10 @@ func validateCheInspectorStruct(sl validator.StructLevel) {
 
 	if inspector.Name == "" {
 		sl.ReportError(inspector.Name, "name", "Name", "Missing", "")
+	}
+
+	if inspector.Spec.Deployment.Cli.Namespace == "" {
+		sl.ReportError(inspector.Spec.Deployment.Cli.Namespace, "namespace", "Spec.Deployment.Cli.Namespace", "Missing", "")
 	}
 
 	if inspector.Version == "" {

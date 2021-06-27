@@ -4,7 +4,6 @@ import (
 	"archive/tar"
 	"bytes"
 	"compress/gzip"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -24,8 +23,6 @@ func ExecuteBashCommand(command string) error {
 	if err != nil {
 		return err
 	}
-	outStr, errStr := string(stdoutBuf.Bytes()), string(stderrBuf.Bytes())
-	fmt.Printf("\nout:\n%s\nerr:\n%s\n", outStr, errStr)
 
 	return nil
 }
